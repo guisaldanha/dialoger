@@ -1,8 +1,8 @@
 # Dialoger
 
-[![PyPI version](https://img.shields.io/pypi/v/dialoger)](https://img.shields.io/pypi/v/logandprint) [![License](https://img.shields.io/github/license/guisaldanha/dialoger)](LICENSE) [![Downloads](https://img.shields.io/pypi/dm/dialoger)](https://img.shields.io/pypi/dm/dialoger)
+[![PyPI version](https://img.shields.io/pypi/v/dialoger)](https://pypi.org/project/dialoger/) [![License](https://img.shields.io/github/license/guisaldanha/dialoger)](LICENSE) [![Downloads](https://img.shields.io/pypi/dm/dialoger)](https://img.shields.io/pypi/dm/dialoger)
 
-Dialoger is a Python package that provides a set of functions to create interactive dialog windows in Tkinter with ease.
+Dialoger is a Python package that provides a set of functions to create interactive dialog windows for your applications.
 
 ## Installation
 
@@ -14,7 +14,7 @@ pip install dialoger
 
 ## Usage
 
-Dialoger provides a set of functions to create interactive dialog windows in Tkinter with ease. The functions are: `ask`, `askwithanswers`, `confirm`, `alert`, `info`, `error` and `success`.
+Dialoger provides a set of functions to create interactive dialog windows with ease. The functions are: `ask`, `askwithanswers`, `confirm`, `alert`, `info`, `error` and `success`.
 
 ### ask
 
@@ -94,6 +94,16 @@ dialoger.info('Info', 'This is an info')
 dialoger.error('Error', 'This is an error')
 dialoger.success('Success', 'This is a success')
 ```
+
+## Minimum dependencies
+
+Dialoger has no dependencies. It uses only the standard Python Tkinter library.
+
+## Appropriate icons
+
+For each interaction, an icon corresponding to the type of interaction is displayed in the window. The icons are:
+
+![Alert](https://raw.githubusercontent.com/guisaldanha/dialoger/main/dialoger/images/alert.png) ![Info](https://raw.githubusercontent.com/guisaldanha/dialoger/main/dialoger/images/info.png) ![Error](https://raw.githubusercontent.com/guisaldanha/dialoger/main/dialoger/images/error.png) ![Success](https://raw.githubusercontent.com/guisaldanha/dialoger/main/dialoger/images/success.png) ![Question](https://raw.githubusercontent.com/guisaldanha/dialoger/main/dialoger/images/question.png)
 
 ## License
 
