@@ -1,0 +1,48 @@
+on:
+  push:
+    tags:
+      - '*'
+
+name: Create Release From Tags
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body: |
+            To see the changes in this version, see the CHANGELOG.md file.
+          draft: false
+          prerelease: false
+  publish:
+      name: Publish Release on PyPI
+      runs-on: ubuntu-latest
+      needs: build
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@master
+        - name: Set up Python 3.11
+          uses: actions/setup-python@v1
+          with:
+            python-version: 3.11
+        - name: Install dependencies
+          run: |
+            python3 -m pip install --upgrade pip
+            pip install setuptools wheel twine
+        - name: Build and publish
+          env:
+            TWINE_USERNAME: __token__
+            TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+          run: |
+            python3 setup.py sdist bdist_wheel
+            twine upload dist/*

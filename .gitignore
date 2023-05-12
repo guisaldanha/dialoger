@@ -1,0 +1,12 @@
+# Folders
+venv/
+dist/
+build/
+__pycache__/
+trash/
+*.egg-info
+
+# Files
+*.spec
+*.psd
+test.py
