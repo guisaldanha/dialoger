@@ -1,12 +1,13 @@
 from setuptools import find_packages, setup
 
 package_name = 'dialoger'
-version = '1.0.0'
+version = '1.0.1'
 
 setup(
     name=package_name,
     packages=find_packages(),
     version=version,
+    include_package_data=True,
     package_data={
         'dialoger': ['images/*'],
     },
