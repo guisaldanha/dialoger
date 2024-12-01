@@ -82,6 +82,8 @@ class input:
             self.buttonCancel.bind("<Key>", lambda event: self.close())
         if self.pattern is not None:
             self.button.config(state="disabled")
+            if self.answer_default is not None:
+                self.button.config(state="normal")
             self.entry.bind('<KeyRelease>', self.format_input)
         frmButtons.pack(expand=True)
         # Set focus on the window
