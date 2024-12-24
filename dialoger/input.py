@@ -23,7 +23,7 @@ class input:
         self.pattern = pattern
         self.closed = False
         # Create window
-        self.root = tk.Tk()
+        self.root = tk.Toplevel()
         self.root.title(title)
         self.root.resizable(False, False)
         self.root.geometry("+400+250")
@@ -41,8 +41,8 @@ class input:
         if icon:
             imagepath = os.path.join(os.path.dirname(__file__), "images", icon)
             self.root.iconbitmap(imagepath + '.ico')
-            image = tk.PhotoImage(file=imagepath + '.png')
-            titleImg = tk.Label(frmLabel, image=image, background="white")
+            self.image = tk.PhotoImage(file=imagepath + '.png')
+            titleImg = tk.Label(frmLabel, image=self.image, background="white")
             titleImg.pack(side=tk.LEFT, anchor=tk.N,  padx=(15,3), pady=15)
 
         wraplength = 400

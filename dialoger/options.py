@@ -13,22 +13,23 @@ class options():
             choices (list): list of choices
         """
         # Create window
-        self.root = tk.Tk()
+        self.root = tk.Toplevel()
         self.root.title(title)
         self.root.resizable(False, False)
         self.root.geometry("+400+250")
         self.root.wm_minsize(250, 50)
         self.root.attributes('-topmost', True) # Always on top
         # self.root.wm_attributes('-toolwindow', 'True') # Remove the icon, minimize and maximize buttons
-        self.root.protocol("WM_DELETE_WINDOW", self.close())
+        self.root.protocol("WM_DELETE_WINDOW", self.close)
         self.root.bind("<Key>", self.key_pressed_in_root)
         # Frame for the message
         frmLabel = tk.Frame(self.root, background="white")
         if icon:
             imagepath = os.path.join(os.path.dirname(__file__), "images", icon)
             self.root.iconbitmap(imagepath + '.ico')
-            image = tk.PhotoImage(file=imagepath + '.png')
-            titleImg = tk.Label(frmLabel, image=image, background="white")
+            self.image = tk.PhotoImage(file=imagepath + '.png')  # Store reference to the image
+            titleImg = tk.Label(frmLabel, image=self.image, background="white")
+            titleImg.image = self.image  # Keep a reference to avoid garbage collection
             titleImg.pack(side=tk.LEFT, anchor=tk.N,  padx=(15,3), pady=15)
 
         wraplength = 400 if len(choices) < 3 else 650
