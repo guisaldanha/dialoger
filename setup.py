@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 package_name = 'dialoger'
-version = '1.0.2'
+version = '1.1.0'
 
 setup(
     name=package_name,

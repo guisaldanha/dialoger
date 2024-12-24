@@ -2,9 +2,50 @@ import tkinter as tk
 import os
 
 class input:
-    def __init__(self, title, question, answer_type="str", answer_default=None, pattern=None, allow_empty=True, allow_cancel=True, icon=None):
+
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        """Create and return a new instance of the class if one does not already exist.
+
+        This method ensures that only one instance of the class is created (singleton pattern).
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+            input: The single instance of the class.
         """
-        Initialize the window
+        if cls._instance is None:
+            cls._instance = super(input, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self, title, question, answer_type="str", answer_default=None, pattern=None, allow_empty=True, allow_cancel=True, icon=None):
+        """Initialize the window
+
+        Args:
+            title (str): window title
+            question (str): question to be asked
+            answer_type (str, optional): type of answer (int, float, alphanumeric, str). Defaults to "str".
+            allow_empty (bool, optional): allow empty answer. Defaults to True.
+            answer_default (_type_, optional): default answer. Defaults to None.
+            allow_cancel (bool, optional): allow cancel. Defaults to True.
+            icon (str, optional): icon. Defaults to None.
+        """
+        if hasattr(self, 'initialized') and self.initialized:
+            self.reinitialize(title, question, answer_type, answer_default, pattern, allow_empty, allow_cancel, icon)
+            return
+        self.initialized = True
+        self.create_window(title, question, answer_type, answer_default, pattern, allow_empty, allow_cancel, icon)
+
+    def reinitialize(self, title, question, answer_type, answer_default, pattern, allow_empty, allow_cancel, icon):
+        """Reinitialize the window"""
+        self.root.destroy()
+        self.create_window(title, question, answer_type, answer_default, pattern, allow_empty, allow_cancel, icon)
+
+    def create_window(self, title, question, answer_type="str", answer_default=None, pattern=None, allow_empty=True, allow_cancel=True, icon=None):
+        """
+        Create the window
 
         Args:
             title (str): window title
@@ -239,6 +280,9 @@ class input:
         """
         if self.closed:
             return None
-        answer = self.entry.get()
+        try:
+            answer = self.entry.get()
+        except tk.TclError:
+            return None
         self.root.destroy()
         return answer
