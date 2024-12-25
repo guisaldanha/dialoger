@@ -1,6 +1,5 @@
 from dialoger.options import options
 from dialoger.input import input
-from tkinter import messagebox
 
 
 def ask(title:str, question:str, answer_type:str, answer_default:str = None, pattern:str = None, allow_empty:bool = True, allow_cancel:bool = True) -> str:
@@ -17,7 +16,9 @@ def ask(title:str, question:str, answer_type:str, answer_default:str = None, pat
     Returns:
         str: answer
     """
-    return input(title=title, question=question, answer_type=answer_type, answer_default=answer_default, pattern=pattern, allow_empty=allow_empty, allow_cancel=allow_cancel, icon="question").get_answer()
+    answer = input(title=title, question=question, answer_type=answer_type, answer_default=answer_default, pattern=pattern, allow_empty=allow_empty, allow_cancel=allow_cancel, icon="question").get_answer()
+    input._instance = None
+    return answer
 
 
 def askwithanswers(title:str, question:str, choices:list) -> str:
@@ -32,7 +33,9 @@ def askwithanswers(title:str, question:str, choices:list) -> str:
     Returns:
         str: choice
     """
-    return options(title=title, message=question, choices=choices, icon="question").choice
+    choice = options(title=title, message=question, choices=choices, icon="question").choice
+    options._instance = None
+    return choice
 
 
 def confirm(title:str, message:str, choices:list=["Yes", "No"]) -> bool:
@@ -46,9 +49,8 @@ def confirm(title:str, message:str, choices:list=["Yes", "No"]) -> bool:
     """
     assert len(choices) == 2, "The list of options must contain exactly two options."
     assert isinstance(choices[0], str) and isinstance(choices[1], str), "Options must be strings."
-    # Gets the user's choice
-    choice = askwithanswers(title=title, question=message, choices=choices)
-    # If the user's choice is the first option, return True
+    choice = options(title=title, message=message, choices=choices, icon="question").choice
+    options._instance = None
     return choice == choices[0]
 
 
@@ -61,6 +63,8 @@ def alert(title:str, message:str) -> str:
         message (str): message to be shown
     """
     options(title=title, message=message, choices=["OK"], icon="alert")
+    options._instance = None
+    return None
 
 
 def info(title:str, message:str) -> str:
@@ -72,6 +76,8 @@ def info(title:str, message:str) -> str:
         message (str): message to be shown
     """
     options(title=title, message=message, choices=["OK"], icon="info")
+    options._instance = None
+    return None
 
 
 def error(title:str, message:str) -> str:
@@ -83,6 +89,8 @@ def error(title:str, message:str) -> str:
         message (str): message to be shown
     """
     options(title=title, message=message, choices=["OK"], icon="error")
+    options._instance = None
+    return None
 
 
 def success(title:str, message:str) -> str:
@@ -94,3 +102,5 @@ def success(title:str, message:str) -> str:
         message (str): message to be shown
     """
     options(title=title, message=message, choices=["OK"], icon="success")
+    options._instance = None
+    return None
