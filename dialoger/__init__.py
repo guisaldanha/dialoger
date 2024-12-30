@@ -2,7 +2,7 @@ from dialoger.options import options
 from dialoger.input import input
 
 
-def ask(title:str, question:str, answer_type:str, answer_default:str = None, pattern:str = None, allow_empty:bool = True, allow_cancel:bool = True) -> str:
+def ask(title:str, question:str, answer_type:str, answer_default:str = None, pattern:str = None, allow_empty:bool = True, allow_cancel:bool = True, entrance_width=35) -> str:
     """
     Create an input window
 
@@ -10,13 +10,16 @@ def ask(title:str, question:str, answer_type:str, answer_default:str = None, pat
         title (str): window title
         question (str): question to be asked
         answer_type (str): type of answer (int, float, alphanumeric, str)
-        allow_empty (bool, optional): allow empty answer. Defaults to True.
         answer_default (str, optional): default answer. Defaults to None.
+        pattern (str, optional): pattern for the answer. Defaults to None.
+        allow_empty (bool, optional): allow empty answer. Defaults to True.
+        allow_cancel (bool, optional): allow cancel. Defaults to True.
+        entrance_width (int, optional): width of the input field. Defaults to 35.
 
     Returns:
         str: answer
     """
-    answer = input(title=title, question=question, answer_type=answer_type, answer_default=answer_default, pattern=pattern, allow_empty=allow_empty, allow_cancel=allow_cancel, icon="question").get_answer()
+    answer = input(title=title, question=question, answer_type=answer_type, answer_default=answer_default, pattern=pattern, allow_empty=allow_empty, allow_cancel=allow_cancel, icon="question", entrance_width=entrance_width).answer
     input._instance = None
     return answer
 
