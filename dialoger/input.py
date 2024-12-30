@@ -5,13 +5,7 @@ class input:
 
     _instance = None
 
-    def __new__(cls, *args, **kwargs):
-        """Create and return a new instance of the class if one does not already exist."""
-        if cls._instance is None:
-            cls._instance = super(input, cls).__new__(cls)
-        return cls._instance
-
-    def __init__(self, title, question, answer_type="str", answer_default=None, pattern=None, allow_empty=True, allow_cancel=True, icon=None):
+    def __init__(self, title, question, answer_type="str", answer_default=None, pattern=None, allow_empty=True, allow_cancel=True, icon=None, entrance_width=35):
         """Initialize the class
 
         Args:
@@ -23,23 +17,30 @@ class input:
             allow_empty (bool, optional): allow empty answer. Defaults to True.
             allow_cancel (bool, optional): allow cancel. Defaults to True.
             icon (str, optional): icon. Defaults to None.
+            entrance_width (int, optional): width of the entrance. Defaults to 35.
         """
         if hasattr(self, 'initialized') and self.initialized:
             self.reinitialize(title, question, answer_type, answer_default, pattern, allow_empty, allow_cancel, icon)
             return
         self.initialized = True
-        self.create_window(title, question, answer_type, answer_default, pattern, allow_empty, allow_cancel, icon)
+        self.answer = None
+        self.dialog = None
+        self._root = self.find_root()
+        self.create_window(title, question, answer_type, answer_default, pattern, allow_empty, allow_cancel, icon, entrance_width)
+
+    def find_root(self):
+        """Find or create the root window."""
+        if tk._default_root:
+            return tk._default_root
+        else:
+            return None
 
     def reinitialize(self, title, question, answer_type, answer_default, pattern, allow_empty, allow_cancel, icon):
         """Reinitialize the window"""
-        if self.root:
-            try:
-                self.destroy_window()
-            except tk.TclError:
-                pass
+        self.destroy_window()
         self.create_window(title, question, answer_type, answer_default, pattern, allow_empty, allow_cancel, icon)
 
-    def create_window(self, title, question, answer_type="str", answer_default=None, pattern=None, allow_empty=True, allow_cancel=True, icon=None):
+    def create_window(self, title, question, answer_type="str", answer_default=None, pattern=None, allow_empty=True, allow_cancel=True, icon=None, entrance_width=35):
         """
         Create the window
 
@@ -51,88 +52,92 @@ class input:
             answer_default (_type_, optional): default answer. Defaults to None.
             allow_cancel (bool, optional): allow cancel. Defaults to True.
         """
+        # Create window
+        if self._root:
+            self.dialog = tk.Toplevel(self._root)
+            # Disable the main window
+            self._root.attributes('-disabled', True)
+        else:
+            self.dialog = tk.Tk()
+
+        self.dialog.withdraw()
         # Initialize variables
-        self.question = question
         self.answer_type = answer_type
         self.allow_empty = allow_empty
-        self.answer_default = answer_default
         self.allow_cancel = allow_cancel
         self.pattern = pattern
-        self.closed = False
-        # Create window
-        self.root = tk.Tk() if not tk._default_root else tk.Toplevel()
-        if tk._default_root and isinstance(self.root, tk.Toplevel):
-            tk._default_root.attributes('-disabled', True)
-            self.root.protocol("WM_DELETE_WINDOW", lambda: [self.destroy_window()])
-        self.root.withdraw()
-        self.root.title(title)
-        self.root.resizable(False, False)
-        self.root.geometry("+400+250")
-        self.root.wm_minsize(250, 50)
-        # self.root.wm_attributes('-toolwindow', 'True') # Remove the icon, minimize and maximize buttons
-        self.root.attributes('-topmost', True) # Always on top
-        self.root.bind("<Key>", self.key_pressed)
-        # Validate if the window can be closed
-        if self.allow_cancel:
-            self.root.protocol("WM_DELETE_WINDOW", self.close)
-        else:
-            self.root.protocol("WM_DELETE_WINDOW", lambda: None)
-        # Frame for the question
-        frmLabel = tk.Frame(self.root, background="white")
+
+        self.dialog.protocol("WM_DELETE_WINDOW", self.destroy_window)
+        self.dialog.title(title)
+        self.dialog.resizable(False, False)
+        self.dialog.geometry("+400+250")
+        self.dialog.attributes('-topmost', True)
+
+        # Message frame
+        frm_label = tk.Frame(self.dialog, background="white")
+        # Set icon
         if icon:
             imagepath = os.path.join(os.path.dirname(__file__), "images", icon)
-            self.root.iconbitmap(imagepath + '.ico')
-            self.image = tk.PhotoImage(file=imagepath + '.png')
-            titleImg = tk.Label(frmLabel, image=self.image, background="white")
-            titleImg.pack(side=tk.LEFT, anchor=tk.N,  padx=(15,3), pady=15)
+            self.dialog.iconbitmap(imagepath + '.ico')
+            self.image = tk.PhotoImage(file=os.path.join(os.path.dirname(__file__), "images", icon + '.png'))
+            title_img = tk.Label(frm_label, image=self.image, background="white")
+            title_img.image = self.image
+            title_img.pack(side=tk.LEFT, anchor=tk.N, padx=(15, 3), pady=15)
 
         wraplength = 400
-        titleMsg = tk.Label(frmLabel, text=self.question, background="white", justify=tk.LEFT, wraplength=wraplength)
-        titleMsg.pack(side=tk.LEFT, padx=(3,15), pady=15)
-        frmLabel.pack(expand=True, fill=tk.BOTH)
+        title_msg = tk.Label(frm_label, text=question, background="white", justify=tk.LEFT, wraplength=wraplength)
+        title_msg.pack(side=tk.LEFT, padx=(3, 15), pady=15)
+        frm_label.pack(expand=True, fill=tk.BOTH)
 
         # Frame for the entry
-        frmEntry = tk.Frame(self.root, background="white")
-        self.answer_entry = tk.Entry(frmEntry, validate="key")
+        frmEntry = tk.Frame(self.dialog, background="white", padx=30)
+        self.answer_entry = tk.Entry(frmEntry, validate="key", width=entrance_width)
         if self.answer_type == "int":
-            self.answer_entry.config(validatecommand=(self.root.register(self.validate_int), '%P'))
+            self.answer_entry.config(validatecommand=(self.dialog.register(self.validate_int), '%P'))
         elif self.answer_type == "alphanumeric":
-            self.answer_entry.config(validatecommand=(self.root.register(self.validate_alphanumeric), '%P'))
+            self.answer_entry.config(validatecommand=(self.dialog.register(self.validate_alphanumeric), '%P'))
         elif self.answer_type == "float":
-            self.answer_entry.config(validatecommand=(self.root.register(self.validate_float), '%P'))
+            self.answer_entry.config(validatecommand=(self.dialog.register(self.validate_float), '%P'))
         elif self.answer_type == "password":
-            self.answer_entry.config(validatecommand=(self.root.register(self.validate_str), '%P'), show="*")
+            self.answer_entry.config(validatecommand=(self.dialog.register(self.validate_str), '%P'), show="*")
         else:
-            self.answer_entry.config(validatecommand=(self.root.register(self.validate_str), '%P'))
+            self.answer_entry.config(validatecommand=(self.dialog.register(self.validate_str), '%P'))
         self.answer_entry.bind("<Key>", self.key_pressed)
         self.answer_entry.focus()
         self.answer_entry.pack(padx=10, pady=(5,15), ipady=3)
         frmEntry.pack(expand=True, fill=tk.BOTH)
+
         # Frame for the buttons
-        frmButtons = tk.Frame(self.root)
+        frmButtons = tk.Frame(self.dialog)
         self.button = tk.Button(frmButtons, text="OK", command=self.set_answer)
+        self.button.bind("<Key>", self.key_pressed)
         if not self.allow_empty:
             self.button.config(state="disabled")
-        if self.answer_default is not None:
-            self.answer_entry.insert(0, self.answer_default)
-            self.answer_entry.select_range(0, tk.END)
+        if answer_default is not None:
+            self.answer_entry.insert(0, answer_default)
+            self.answer_entry.select_range(0, tk.END) # Deixa o texto selecionado
         self.button.pack(side=tk.LEFT, padx=10, pady=10, ipadx=3)
-        if self.allow_cancel:
-            self.buttonCancel = tk.Button(frmButtons, text="Cancel", command=self.close)
-            self.buttonCancel.pack(side=tk.LEFT, padx=10, pady=10, ipadx=3)
-            self.buttonCancel.bind("<Key>", self.key_pressed)
         if self.pattern is not None:
             self.button.config(state="disabled")
-            if self.answer_default is not None:
+            if answer_default is not None:
                 self.button.config(state="normal")
             self.answer_entry.bind('<KeyRelease>', self.format_input)
+        if self.allow_cancel:
+            self.buttonCancel = tk.Button(frmButtons, text="Cancel", command=self.destroy_window)
+            self.buttonCancel.pack(side=tk.LEFT, padx=10, pady=10, ipadx=3)
+            self.buttonCancel.bind("<Key>", self.key_pressed)
         frmButtons.pack(expand=True)
+
+        # Update layout and show the window
+        self.dialog.update_idletasks()
+
         # Set focus on the window
-        self.root.after(10, lambda: [self.root.focus_force(), self.answer_entry.focus_set()]) # Set focus on the window
-        self.root.after(300, lambda: [self.root.focus_force(), self.answer_entry.focus_set()]) # we will make sure it works on slower computers or codes
+        self.dialog.after(10, lambda: [self.dialog.focus_force(), self.answer_entry.focus_set()])
+        self.dialog.after(300, lambda: [self.dialog.focus_force(), self.answer_entry.focus_set()])
+
         # Start the window
-        self.root.deiconify() # Show the window
-        self.root.mainloop()
+        self.dialog.deiconify() # Show the window
+        self.dialog.wait_window()
 
     def format_input(self, event):
         """Format the input according to the pattern"""
@@ -238,25 +243,20 @@ class input:
         # Escape
         if event.keycode == 27:
             if self.allow_cancel:
-                self.close()
+                self.destroy_window()
         # Enter
         elif event.keycode == 13:
             if self.validate_answer():
-                self.root.quit()
+                self.set_answer()
         # Tab, cycle through buttons
         elif event.keycode == 9:
             widgets = [self.answer_entry, self.button]
-            if self.allow_cancel:
-                widgets.append(self.buttonCancel)
-
             current_index = widgets.index(event.widget)
             next_index = (current_index + 1) % len(widgets)
             widgets[next_index].focus_set()
             return "break"  # Prevent default behavior
         else:
             pass
-
-
 
     def validate_answer(self):
         """
@@ -278,47 +278,20 @@ class input:
                 return False
         return True
 
-    def close(self):
-        """
-        Close the window and set the answer to None
-        """
-        self.closed = True
-        if tk._default_root:
-            tk._default_root.focus_force()
-            tk._default_root.attributes('-disabled', False)
-        self.root.destroy()
-
     def destroy_window(self):
-        if self.root:
-            self.root.unbind_all("<Key>")
-            self.root.unbind_all("<Button-1>")
-            self.root.update_idletasks()
-            self.root.update()  # Process all pending events
-            self.root.destroy()
-            self.root.quit()
-            if tk._default_root:
-                tk._default_root.focus_force()
-                tk._default_root.attributes('-disabled', False)
+        """Destroy the window and re-enable the root"""
+        if self.dialog:
+            self.dialog.destroy()
+            self.dialog = None
+        input._instance = None
+        if self._root:
+            self._root.attributes('-disabled', False)
+            self._root.focus_force()
 
     def set_answer(self):
         """
         Set the answer and close the window
         """
         if self.validate_answer():
-            self.root.quit()
-
-    def get_answer(self):
-        """
-        Get the answer and close the window
-
-        Returns:
-            str: answer
-        """
-        if self.closed:
-            return None
-        try:
-            answer = self.answer_entry.get()
-        except tk.TclError:
-            return None
-        self.root.destroy()
-        return answer
+            self.answer = self.answer_entry.get()
+            self.destroy_window()
