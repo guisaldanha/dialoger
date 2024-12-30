@@ -29,6 +29,7 @@ The `ask` function creates a dialog window with a question and a text input. It 
 - `pattern` (optional): A pattern to validate the answer. # will be replaced by the number. For example, `##/##/####` can be used to ask for a date or `###.###.###-##` to ask for a CPF. If `None`, no pattern will be used.
 - `allow_empty` (optional): If `True`, the user can leave the text input empty. If `False`, the user must input something.
 - `allow_cancel` (optional): If `True`, the user can cancel the dialog window. If `False`, the user must answer the question.
+- `entrance_width` (optional): The width of the text input. If omitted, the width will be 35.
 
 ```python
 import dialoger
