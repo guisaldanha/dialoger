@@ -24,7 +24,7 @@ def ask(title:str, question:str, answer_type:str, answer_default:str = None, pat
     return answer
 
 
-def askwithanswers(title:str, question:str, choices:list) -> str:
+def askwithanswers(title:str, question:str, choices:list, orientation='horizontal') -> str:
     """
     Create an window with a list of choices
 
@@ -36,7 +36,7 @@ def askwithanswers(title:str, question:str, choices:list) -> str:
     Returns:
         str: choice
     """
-    choice = options(title=title, message=question, choices=choices, icon="question").choice
+    choice = options(title=title, message=question, choices=choices, icon="question", orientation=orientation).choice
     options._instance = None
     return choice
 
