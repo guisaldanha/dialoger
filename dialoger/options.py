@@ -5,7 +5,7 @@ class options():
 
     _instance = None
 
-    def __init__(self, title: str, message: str, choices: list, icon=None) -> None:
+    def __init__(self, title: str, message: str, choices: list, icon=None, orientation='horizontal') -> None:
         """Initialize the class
 
         Args:
@@ -17,6 +17,7 @@ class options():
         if hasattr(self, 'initialized') and self.initialized:
             self.reinitialize(title, message, choices, icon)
             return
+        self.orientation = orientation
         self.initialized = True
         self.choice = None
         self.dialog = None
@@ -83,11 +84,13 @@ class options():
         self.buttons = []
         for choice in choices:
             btn = tk.Button(frmButtons, text=choice, borderwidth=1, command=lambda x=choice: self.set_choice(x))
+
             btn.bind("<Right>", lambda event, button=btn: self.next_button(button))
             btn.bind("<Left>", lambda event, button=btn: self.previous_button(button))
             btn.bind("<Return>", lambda event, button=btn: self.set_choice(button['text']))
             btn.bind("<Escape>", lambda event: self.close())
-            btn.pack(side=tk.LEFT, padx=10, pady=10, ipadx=5, ipady=1)
+            side_option = tk.TOP if self.orientation == 'vertical' else tk.LEFT
+            btn.pack(side=side_option, padx=10, pady=10, ipadx=5, ipady=1)
             self.buttons.append(btn)
         self.buttons[0].focus_set()
         frmButtons.pack(expand=True)
